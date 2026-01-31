@@ -167,6 +167,9 @@ namespace RobloxFiles.BinaryFormat
         // Writes a string to the buffer with the option to exclude a length prefix.
         public void WriteString(string value, bool raw = false)
         {
+            if (value == null)
+                value = "";
+                
             byte[] buffer = Encoding.UTF8.GetBytes(value);
             
             if (!raw)

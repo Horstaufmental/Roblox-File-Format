@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -20,6 +20,9 @@ namespace RobloxFiles
 
         public Dictionary<string, string> Metadata { get; private set; } = new Dictionary<string, string>();
         internal int RefCounter = 0;
+
+        /// <summary>When true, Save() writes all properties (including defaults) for round-trip fidelity.</summary>
+        public bool WriteAllProperties { get; set; }
 
         public XmlRobloxFile()
         {

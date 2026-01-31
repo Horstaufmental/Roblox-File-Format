@@ -46,6 +46,9 @@ internal static class Formatting
 
     public static string ToInvariantString(this object value)
     {
+        if (value == null)
+            return "null";
+            
         switch (value)
         {
             case double d : return d.ToInvariantString();

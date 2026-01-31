@@ -778,12 +778,18 @@ namespace RobloxFiles.BinaryFormat.Chunks
                 RbxObject obj = file.Objects[objId];
                 var objProps = obj.Properties;
 
-                if (!objProps.TryGetValue(Name, out Property prop))
-                    throw new Exception($"Property {Name} must be defined in {obj}!");
-                else if (prop.Type != Type)
-                    throw new Exception($"Property {Name} is not using the correct type in {obj}!");
-
-                props.Add(prop);
+                // Skip properties that are not defined on this object (e.g. obsolete properties like LinkedSource)
+                if (objProps.TryGetValue(Name, out Property prop) && prop.Type == Type)
+                {
+                    props.Add(prop);
+                }
+                else
+                {
+                    // For missing properties, add a null or default property
+                    // This preserves the number of properties per object in the chunk
+                    var dummyProp = new Property(Name, Type, null);
+                    props.Add(dummyProp);
+                }
             }
 
             writer.Write(ClassIndex);

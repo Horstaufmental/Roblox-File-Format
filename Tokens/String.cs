@@ -21,6 +21,12 @@ namespace RobloxFiles.Tokens
 
         public void WriteProperty(Property prop, XmlDocument doc, XmlNode node)
         {
+            if (prop.Value == null)
+            {
+                node.InnerText = "null";
+                return;
+            }
+
             string value = prop.Value.ToInvariantString();
 
             if (value.Contains("\r") || value.Contains("\n"))

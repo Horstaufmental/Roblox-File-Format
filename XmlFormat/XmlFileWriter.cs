@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.Contracts;
 using System.Globalization;
 using System.Linq;
@@ -42,7 +42,8 @@ namespace RobloxFiles.XmlFormat
 
         internal static void RecordInstances(XmlRobloxFile file, Instance inst)
         {
-            inst.Referent = "RBX" + file.RefCounter++;
+            if (string.IsNullOrEmpty(inst.Referent))
+                inst.Referent = "RBX" + file.RefCounter++;
 
             foreach (Instance child in inst.GetChildren())
                 RecordInstances(file, child);
@@ -175,25 +176,29 @@ namespace RobloxFiles.XmlFormat
             var orderedKeys = props
                 .OrderBy(pair => pair.Key)
                 .Select(pair => pair.Key);
-            
+
+            bool writeAllProperties = file.WriteAllProperties;
             foreach (string propName in orderedKeys)
             {
                 Property prop = props[propName];
                 bool isDefault = false;
 
-                object a = DefaultProperty.Get(instance, prop);
-                object b = prop.Value;
+                if (!writeAllProperties)
+                {
+                    object a = DefaultProperty.Get(instance, prop);
+                    object b = prop.Value;
 
-                if (a is double d0 && b is double d1)
-                    isDefault = d0.FuzzyEquals(d1);
-                else if (a is float f0 && b is float f1)
-                    isDefault = f0.FuzzyEquals(f1);
-                else if (b != null)
-                    isDefault = b.Equals(a);
-                else if (a == b)
-                    isDefault = true;
-                
-                if (!isDefault || propName == "Name")
+                    if (a is double d0 && b is double d1)
+                        isDefault = d0.FuzzyEquals(d1);
+                    else if (a is float f0 && b is float f1)
+                        isDefault = f0.FuzzyEquals(f1);
+                    else if (b != null)
+                        isDefault = b.Equals(a);
+                    else if (a == b)
+                        isDefault = true;
+                }
+
+                if (writeAllProperties || !isDefault || propName == "Name")
                 {
                     XmlNode propNode = WriteProperty(prop, doc, file);
 
